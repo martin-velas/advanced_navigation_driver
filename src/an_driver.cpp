@@ -287,7 +287,8 @@ float deg(const float rad) {
 void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped pose_errors_msg,
                        const int gnss_fix_type, const int heading_initialised, const int dual_antenna_heading_active,
                        const size_t satelites, const float hdop, const float vdop, const int odometer_active,
-                       const float odometer_speed) {
+                       const float odometer_speed, const float lat_stdev, const float lon_stdev,
+                       const float height_stdev, const float heading_stdev) {
 
   advanced_navigation_driver::InfoPanelData msg;
 
@@ -304,6 +305,11 @@ void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped 
 
   msg.odometer_active = odometer_active;
   msg.odometer_speed = odometer_speed;
+
+  msg.lat_stdev = lat_stdev;
+  msg.lon_stdev = lon_stdev;
+  msg.height_stdev = height_stdev;
+  msg.heading_stdev = heading_stdev;
 
   pub.publish(msg);
 }
@@ -508,6 +514,8 @@ int main(int argc, char *argv[]) {
   float vdop = -1.0;
   int odometer_active = 0;
   float odometer_speed = 0.0;
+  float lat_stdev, lon_stdev, height_stdev, heading_stdev;
+  lat_stdev = lon_stdev = height_stdev = heading_stdev = -1.0;
 
   int last_gnss_fix_type, last_heading_initialized, last_dual_antena_active;
 
@@ -615,8 +623,19 @@ int main(int argc, char *argv[]) {
             } else {
               publish_info_data(data_pub, orientation_errors_msg,
                   last_gnss_fix_type, last_heading_initialized, last_dual_antena_active,
-                  satelites_cnt, hdop, vdop, odometer_active, odometer_speed);
+                  satelites_cnt, hdop, vdop, odometer_active, odometer_speed,
+                  lat_stdev, lon_stdev, height_stdev, heading_stdev);
             }
+          }
+        }
+
+        if (an_packet->id == packet_id_raw_gnss) {
+          raw_gnss_packet_t raw_gnss_packet;
+          if (decode_raw_gnss_packet(&raw_gnss_packet, an_packet) == 0) {
+            lat_stdev = raw_gnss_packet.position_standard_deviation[0];
+            lon_stdev = raw_gnss_packet.position_standard_deviation[1];
+            height_stdev = raw_gnss_packet.position_standard_deviation[2];
+            heading_stdev = raw_gnss_packet.heading_standard_deviation;
           }
         }
 

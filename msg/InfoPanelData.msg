@@ -9,3 +9,7 @@ float32 hdop
 float32 vdop
 int32 odometer_active
 float32 odometer_speed
+float32 lat_stdev
+float32 lon_stdev
+float32 height_stdev
+float32 heading_stdev
