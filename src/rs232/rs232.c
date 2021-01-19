@@ -96,6 +96,8 @@ int OpenComport(char *comport, int baudrate)
                    break;
     case 1000000 : baudr = B1000000;
                    break;
+    case 2000000 : baudr = B2000000;
+                   break;
     default      : printf("invalid baudrate\n");
                    return(1);
                    break;
