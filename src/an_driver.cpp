@@ -288,7 +288,7 @@ void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped 
                        const int gnss_fix_type, const int heading_initialised, const int dual_antenna_heading_active,
                        const size_t satelites, const float hdop, const float vdop, const int odometer_active,
                        const float odometer_speed, const float lat_stdev, const float lon_stdev,
-                       const float height_stdev, const float heading_stdev) {
+                       const float height_stdev, const float heading_stdev, const bool data_overflow) {
 
   advanced_navigation_driver::InfoPanelData msg;
 
@@ -310,6 +310,8 @@ void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped 
   msg.lon_stdev = lon_stdev;
   msg.height_stdev = height_stdev;
   msg.heading_stdev = heading_stdev;
+
+  msg.data_overflow = data_overflow;
 
   pub.publish(msg);
 }
@@ -517,6 +519,7 @@ int main(int argc, char *argv[]) {
   float odometer_speed = 0.0;
   float lat_stdev, lon_stdev, height_stdev, heading_stdev;
   lat_stdev = lon_stdev = height_stdev = heading_stdev = -1.0;
+  bool data_overflow = false;
 
   int last_gnss_fix_type, last_heading_initialized, last_dual_antena_active;
 
@@ -555,6 +558,8 @@ int main(int argc, char *argv[]) {
             if(system_state_packet.filter_status.b.orientation_filter_initialised == 0) {
               imu_filter_failure = true;
             }
+
+            data_overflow = system_state_packet.system_status.b.serial_port_overflow_alarm;
 
             orientation_msg.header.stamp = ros_now;
             load_orientation(system_state_packet.orientation, orientation_msg.pose.orientation, should_discard_heading);
@@ -628,7 +633,7 @@ int main(int argc, char *argv[]) {
               publish_info_data(data_pub, orientation_errors_msg,
                   last_gnss_fix_type, last_heading_initialized, last_dual_antena_active,
                   satelites_cnt, hdop, vdop, odometer_active, odometer_speed,
-                  lat_stdev, lon_stdev, height_stdev, heading_stdev);
+                  lat_stdev, lon_stdev, height_stdev, heading_stdev, data_overflow);
             }
           }
         }

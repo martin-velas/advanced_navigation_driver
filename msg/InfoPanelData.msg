@@ -13,3 +13,4 @@ float32 lat_stdev
 float32 lon_stdev
 float32 height_stdev
 float32 heading_stdev
+int32 data_overflow
