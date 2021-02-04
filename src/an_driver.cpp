@@ -509,6 +509,7 @@ int main(int argc, char *argv[]) {
   bool imu_filter_failure = false;
   bool dual_antena_package_received = false;
   bool alignment_package_received = false;
+  bool odometer_conf_package_received = false;
   size_t satelites_cnt = 0;
   float hdop = -1.0;
   float vdop = -1.0;
@@ -584,6 +585,9 @@ int main(int argc, char *argv[]) {
             if(!dual_antena_package_received) {
               request_packet(packet_id_dual_antenna_configuration);
             }
+            if(!odometer_conf_package_received) {
+              request_packet(packet_id_odometer_configuration);
+            }
 
             last_gnss_fix_type = system_state_packet.filter_status.b.gnss_fix_type;
             last_heading_initialized = system_state_packet.filter_status.b.heading_initialised;
@@ -649,6 +653,7 @@ int main(int argc, char *argv[]) {
 
         dual_antena_package_received |= (an_packet->id == packet_id_dual_antenna_configuration);
         alignment_package_received |= (an_packet->id == packet_id_installation_alignment);
+        odometer_conf_package_received |= (an_packet->id == packet_id_odometer_configuration);
 
         anpp_logger.write(*an_packet);
 
