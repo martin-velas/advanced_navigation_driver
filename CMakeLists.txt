@@ -132,11 +132,6 @@ include_directories(EIGEN3_INCLUDE_DIR)
 #   src/${PROJECT_NAME}/an_driver.cpp
 # )
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
@@ -211,3 +206,8 @@ include_directories(EIGEN3_INCLUDE_DIR)
 add_executable(advanced_navigation_driver src/an_driver.cpp src/spatial_packets.c src/an_packet_protocol.c src/rs232/rs232.c)
 add_dependencies(advanced_navigation_driver ${catkin_EXPORTED_TARGETS})
 target_link_libraries(advanced_navigation_driver ${catkin_LIBRARIES})
+
+## Add cmake target dependencies of the library
+## as an example, code may need to be generated before libraries
+## either from message generation or dynamic reconfigure
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
