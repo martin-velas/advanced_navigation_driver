@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
-#include <unistd.h>
 #include <signal.h>
 #include <fstream>
 
