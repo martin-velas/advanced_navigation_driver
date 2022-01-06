@@ -223,36 +223,6 @@ void load_filter_status(const system_state_packet_t &system_state_packet,
   }
 }
 
-Eigen::Matrix3f rollM(const float roll) {
-  Eigen::Matrix3f Rx;
-  float cr = cos(roll);
-  float sr = sin(roll);
-  Rx << 1.0, 0.0, 0.0,
-        0.0,  cr, -sr,
-        0.0,  sr,  cr;
-  return Rx;
-}
-
-Eigen::Matrix3f pitchM(const float pitch) {
-  Eigen::Matrix3f Ry;
-  float cp = cos(pitch);
-  float sp = sin(pitch);
-  Ry <<  cp, 0.0,  sp,
-        0.0, 1.0, 0.0,
-        -sp, 0.0,  cp;
-  return Ry;
-}
-
-Eigen::Matrix3f yawM(const float yaw) {
-  Eigen::Matrix3f Rz;
-  float cy = cos(yaw);
-  float sy = sin(yaw);
-  Rz <<  cy, -sy, 0.0,
-         sy,  cy, 0.0,
-        0.0, 0.0, 1.0;
-  return Rz;
-}
-
 void load_orientation(const float *rpy, geometry_msgs::Quaternion &orientation, bool should_discard_heading) {
   // Convert roll, pitch, yaw from radians to quaternion format //
   float phi = rpy[0] / 2.0f;
