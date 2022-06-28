@@ -257,7 +257,8 @@ void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped 
                        const int gnss_fix_type, const int heading_initialised, const int dual_antenna_heading_active,
                        const size_t satelites, const float hdop, const float vdop, const int odometer_active,
                        const float odometer_speed, const float lat_stdev, const float lon_stdev,
-                       const float height_stdev, const float heading_stdev, const bool data_overflow) {
+                       const float height_stdev, const float heading_stdev, const bool data_overflow,
+                       const float gnss_time_gap) {
 
   advanced_navigation_driver::InfoPanelData msg;
 
@@ -281,6 +282,8 @@ void publish_info_data(const ros::Publisher &pub, geometry_msgs::Vector3Stamped 
   msg.heading_stdev = heading_stdev;
 
   msg.data_overflow = data_overflow;
+
+  msg.gnss_time_gap = gnss_time_gap;
 
   pub.publish(msg);
 }
@@ -392,6 +395,15 @@ std_msgs::Float32 norm(const float velocity[]) {
   return msg;
 }
 
+template <typename T>
+T MAX(const T &a, const T &b) {
+  if(a > b) {
+    return a;
+  } else {
+    return b;
+  }
+}
+
 int main(int argc, char *argv[]) {
   // Set up ROS node //
   ros::init(argc, argv, "an_device_node", ros::init_options::NoSigintHandler);
@@ -488,6 +500,7 @@ int main(int argc, char *argv[]) {
   float odometer_speed = 0.0;
   float lat_stdev, lon_stdev, height_stdev, heading_stdev;
   lat_stdev = lon_stdev = height_stdev = heading_stdev = -1.0;
+  double gnss_last_timestamp = -1.0, gnss_timestamps_delta = -1.0;
   bool data_overflow = false;
 
   int last_gnss_fix_type, last_heading_initialized, last_dual_antena_active;
@@ -602,7 +615,8 @@ int main(int argc, char *argv[]) {
               publish_info_data(data_pub, orientation_errors_msg,
                   last_gnss_fix_type, last_heading_initialized, last_dual_antena_active,
                   satelites_cnt, hdop, vdop, odometer_active, odometer_speed,
-                  lat_stdev, lon_stdev, height_stdev, heading_stdev, data_overflow);
+                  lat_stdev, lon_stdev, height_stdev, heading_stdev, data_overflow,
+                  gnss_timestamps_delta);
             }
           }
         }
@@ -614,6 +628,12 @@ int main(int argc, char *argv[]) {
             lon_stdev = raw_gnss_packet.position_standard_deviation[1];
             height_stdev = raw_gnss_packet.position_standard_deviation[2];
             heading_stdev = raw_gnss_packet.heading_standard_deviation;
+
+            double timestamp = raw_gnss_packet.unix_time_seconds + raw_gnss_packet.microseconds*1e-6;
+            if(gnss_last_timestamp > 0) {
+              gnss_timestamps_delta = MAX(timestamp - gnss_last_timestamp, gnss_timestamps_delta);
+            }
+            gnss_last_timestamp = timestamp;
           }
         }
 
