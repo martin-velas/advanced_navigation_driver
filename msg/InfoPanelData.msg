@@ -1,4 +1,5 @@
 Header header
+float32 timestamp
 float32 roll_error
 float32 pitch_error
 int32 fix_type
